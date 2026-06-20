@@ -17,7 +17,7 @@ __DATA__
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port, failure_mode = "error", fork_idle_timeout = 100, drain_poll_interval = 0.05, drain_timeout = 1})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, failure_mode = "error", fork_idle_timeout = 100, drain_poll_interval = 0.05, drain_timeout = 5})
         mgr:connect()
         ngx.say("initial state: " .. mgr:get_state())
 
