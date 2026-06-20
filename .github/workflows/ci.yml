@@ -12,24 +12,18 @@ jobs:
     container:
       image: openresty/openresty:jammy
 
-    services:
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Install system dependencies
         run: |
           apt-get update -qq
-          apt-get install -y -qq git make cpanminus
+          apt-get install -y -qq git make cpanminus redis-server
+
+      - name: Start Redis
+        run: |
+          redis-server --daemonize yes
+          redis-cli ping
 
       - name: Clone test-nginx
         run: |
@@ -40,8 +34,5 @@ jobs:
           cpanm --notest Test::Nginx
 
       - name: Run tests
-        env:
-          TEST_NGINX_REDIS_HOST: redis
-          TEST_NGINX_RESOLVER: 127.0.0.11
         run: |
           make test OPENRESTY_PREFIX=/usr/local/openresty PERL5LIB="/root/perl5/lib/perl5"
