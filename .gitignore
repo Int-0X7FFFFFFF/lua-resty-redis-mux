@@ -6,3 +6,11 @@ t/servroot/
 reindex
 *.t_
 tags
+.vscode/*
+# OPM build artifacts
+*.opm.tar.gz
+resty_modules/
+lua-resty-redis-mux-*.tar.gz
+lua-resty-redis-mux-*/*
+
+

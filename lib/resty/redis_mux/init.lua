@@ -4,8 +4,27 @@
 --
 -- Entry point: require "resty.redis_mux"
 -- Returns module with .new(opts) factory, .ConnectionManager and .Client classes.
+--
+-- Dependencies:
+--   lua-resty-redis (required) -- used for degraded and fork connection paths
+--   lua-resty-core (required)  -- provides ngx.semaphore
+--
+-- The _gen_req and _read_reply functions in protocol.lua are adapted from
+-- lib/resty/redis.lua in lua-resty-redis
+--   Copyright (C) 2012-2017 Yichun Zhang (agentzh), OpenResty Inc.
+-- Used under the BSD 2-Clause license.
 
 local type = type
+
+-- Validate runtime dependency: lua-resty-redis is required for
+-- degraded (draining) and fork (blocking command) connection paths.
+do
+    local ok, _ = pcall(require, "resty.redis")
+    if not ok then
+        error("lua-resty-redis is required as a dependency for resty.redis_mux. "
+            .. "Please install it via: opm install openresty/lua-resty-redis", 0)
+    end
+end
 
 -- Ensure ngx.semaphore is available (may be injected by resty.core
 -- or provided as standalone ngx.semaphore module)

@@ -11,7 +11,7 @@ my $HtmlDir = html_dir;
 
 our @EXPORT = qw($GlobalConfig);
 our $GlobalConfig = qq{
-    lua_package_path "$pwd/lib/?.lua;;";
+    lua_package_path "$pwd/lib/?.lua;$pwd/lib/?/init.lua;;";
     lua_package_cpath "/usr/local/openresty-debug/lualib/?.so;/usr/local/openresty/lualib/?.so;;";
 };
 

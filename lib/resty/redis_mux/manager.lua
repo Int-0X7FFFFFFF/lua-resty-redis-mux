@@ -150,34 +150,6 @@ local function tb_clear_sem_pool(shared)
     shared.sem_pool_len = 0
 end
 
--- Full cleanup of shared state for reuse (connect after dead/draining)
-local function cleanup_shared_state(shared)
-    shared.enqueue_idx = 1
-    shared.write_idx = 1
-    shared.read_idx = 1
-    shared.draining = false
-    shared.state_err = nil
-
-    -- Clear ring buffer arrays
-    for i = 1, shared.capacity do
-        shared.send_queue[i] = nil
-        shared.response_slots[i] = nil
-    end
-
-    -- Clear semaphore pool
-    tb_clear_sem_pool(shared)
-
-    -- Drain and recreate semaphores
-    while shared.enqueue_sem:wait(0) do end
-    while shared.work_available:wait(0) do end
-    while shared.driver_stop_sem:wait(0) do end
-    while shared.driver_done_sem:wait(0) do end
-
-    shared.enqueue_sem = semaphore_new(shared.capacity)
-    shared.work_available = semaphore_new(0)
-    shared.driver_stop_sem = semaphore_new(0)
-    shared.driver_done_sem = semaphore_new(0)
-end
 
 -- Error all inflight slots from read_idx to enqueue_idx
 local function error_all_inflight(shared, err_msg)
@@ -775,18 +747,16 @@ _M.init_connection = init_connection
 function _M.connect(self)
     local shared = self._shared
 
-    -- From terminal states: kill old threads and cleanup before reconnecting
+    -- From terminal states: ngx.thread.kill only works within the same
+    -- context, and connect() may be called from a different context than
+    -- the one that spawned the old driver threads. Rebuild _shared instead
+    -- of trying to kill old threads; old threads will exit naturally on
+    -- their own shared table via the DEAD/DRAINING state checks.
     if shared.state == STATE_DEAD or shared.state == STATE_DRAINING then
-        local wt = shared.write_thread
-        if wt and coroutine.status(wt) ~= "dead" then
-            ngx.thread.kill(wt)
-        end
-        local rt = shared.read_thread
-        if rt and coroutine.status(rt) ~= "dead" then
-            ngx.thread.kill(rt)
-        end
-        cleanup_shared_state(shared)
-        set_state(shared, STATE_DISCONNECTED)
+        local new_shared = create_shared_state(shared.opts)
+        new_shared.mgr = self
+        self._shared = new_shared
+        shared = new_shared
     end
 
     if shared.state ~= STATE_DISCONNECTED then
@@ -891,7 +861,8 @@ function _M.shutdown(self)
     -- Wait for driver threads to finish draining (with timeout)
     shared.driver_done_sem:wait(shared.drain_timeout or 5)
 
-    -- Force-kill any threads that didn't exit in time
+    -- Best-effort kill: only works within the same context.
+    -- If called cross-context, old threads exit on their own via state checks.
     local wt = shared.write_thread
     if wt and coroutine.status(wt) ~= "dead" then
         ngx.thread.kill(wt)
@@ -901,12 +872,14 @@ function _M.shutdown(self)
         ngx.thread.kill(rt)
     end
 
-    -- Error any remaining inflight commands (those that couldn't be drained)
+    -- Error any remaining inflight commands on old shared
     error_all_inflight(shared, "manager shutdown")
 
-    -- Clean up and reset for potential reconnect
-    cleanup_shared_state(shared)
-    set_state(shared, STATE_DISCONNECTED)
+    -- Rebuild _shared: avoids racing with old threads on ring buffer indices
+    -- and ensures a clean state for any future reconnect.
+    local new_shared = create_shared_state(shared.opts)
+    new_shared.mgr = self
+    self._shared = new_shared
 end
 
 return _M

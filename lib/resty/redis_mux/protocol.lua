@@ -126,11 +126,13 @@ _M.STATE_CONNECTED     = "connected"
 _M.STATE_RECONNECTING  = "reconnecting"
 _M.STATE_DEAD          = "dead"
 _M.STATE_DRAINING      = "draining"
--- Backward-compatible alias
-_M.STATE_SHUTTING_DOWN = "draining"
-
 ----------------------------------------------------------------------
--- RESP Protocol functions (adapted from lib/resty/redis.lua)
+-- The _gen_req and _read_reply functions below are adapted from
+-- lib/resty/redis.lua in lua-resty-redis
+--   Copyright (C) 2012-2017 Yichun Zhang (agentzh), OpenResty Inc.
+-- Used under the BSD 2-Clause license.
+----------------------------------------------------------------------
+-- RESP Protocol functions
 ----------------------------------------------------------------------
 
 function _M._gen_req(args)

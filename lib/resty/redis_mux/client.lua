@@ -47,7 +47,6 @@ function _M.new(self, shared)
         _reqs = nil,           -- pipeline buffer
         _module_prefix = nil,
         _degraded_conn = nil,  -- for shutting_down degraded mode
-        _released = false,
     }, client_mt)
     return client
 end
@@ -195,10 +194,6 @@ end
 ----------------------------------------------------------------------
 
 local function do_cmd(self, cmd, ...)
-    if self._released then
-        return nil, "client released"
-    end
-
     local shared = self._shared
 
     -- Check for blocked commands
@@ -415,24 +410,6 @@ end
 ----------------------------------------------------------------------
 -- Client utility methods
 ----------------------------------------------------------------------
-
-function _M.release(self)
-    local reqs = rawget(self, "_reqs")
-    if reqs then
-        for _, req in ipairs(reqs) do
-            put_tab_into_pool(req)
-        end
-        self._reqs = nil
-    end
-
-    local dconn = rawget(self, "_degraded_conn")
-    if dconn then
-        dconn:close()
-        self._degraded_conn = nil
-    end
-
-    self._released = true
-end
 
 function _M.set_timeout(self, timeout)
     -- no-op for multiplexed client; timeouts configured at manager level
