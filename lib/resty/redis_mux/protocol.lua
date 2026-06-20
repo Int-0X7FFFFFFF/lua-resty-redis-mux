@@ -281,8 +281,8 @@ local function return_fork_connection(shared, conn, cmd)
         return  -- caller manages the connection lifecycle
     end
 
-    -- Use dedicated pool name to avoid contaminating the mux connection pool
-    conn:set_keepalive(shared.fork_idle_timeout, shared.fork_pool_size, "redis_mux_fork")
+    -- Return fork connection to pool for reuse
+    conn:set_keepalive(shared.fork_idle_timeout, shared.fork_pool_size)
 end
 
 function _M.fork_and_execute(shared, cmd, ...)

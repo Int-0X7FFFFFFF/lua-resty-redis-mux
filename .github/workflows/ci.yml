@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: openresty/openresty:jammy
+
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq git make cpanminus
+
+      - name: Clone test-nginx
+        run: |
+          git clone --depth 1 https://github.com/openresty/test-nginx.git $GITHUB_WORKSPACE/../test-nginx
+
+      - name: Install CPAN dependencies
+        run: |
+          cpanm --notest Test::Nginx
+
+      - name: Run tests
+        run: |
+          make test OPENRESTY_PREFIX=/usr/local/openresty PERL5LIB="/root/perl5/lib/perl5"

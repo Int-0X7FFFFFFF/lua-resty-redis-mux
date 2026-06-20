@@ -1,4 +1,4 @@
-OPENRESTY_PREFIX=/usr/local/openresty-debug
+OPENRESTY_PREFIX=/opt/openresty
 
 PREFIX ?=          /usr/local
 LUA_INCLUDE_DIR ?= $(PREFIX)/include
@@ -15,5 +15,7 @@ install: all
 	$(INSTALL) -d $(DESTDIR)$(LUA_LIB_DIR)/resty/redis_mux
 	$(INSTALL) lib/resty/redis_mux/*.lua $(DESTDIR)$(LUA_LIB_DIR)/resty/redis_mux
 
+PERL5LIB ?= $(HOME)/perl5/lib/perl5
+
 test: all
-	PATH=$(OPENRESTY_PREFIX)/nginx/sbin:$$PATH prove -I../test-nginx/lib -r t
+	PERL5LIB="$(PERL5LIB)" PATH=$(OPENRESTY_PREFIX)/nginx/sbin:$$PATH prove -I. -I../test-nginx/lib -r t
