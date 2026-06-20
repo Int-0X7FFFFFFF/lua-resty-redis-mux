@@ -17,7 +17,7 @@ __DATA__
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port, failure_mode = "error"})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, failure_mode = "error", fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         ngx.say("initial state: " .. mgr:get_state())
 
@@ -78,6 +78,8 @@ connect() failed
             port = 19999,
             failure_mode = "error",
             connect_timeout = 100,
+            fork_idle_timeout = 100,
+            drain_poll_interval = 0.05,
         })
         mgr:connect()
 
@@ -118,6 +120,8 @@ connect() failed
             failure_mode = "reconnect",
             reconnect_max_retries = 3,
             reconnect_backoff_initial = 0.05,
+            fork_idle_timeout = 100,
+            drain_poll_interval = 0.05,
         })
         mgr:connect()
         ngx.say("initial state: " .. mgr:get_state())
@@ -176,6 +180,8 @@ connect() failed
             port = 19999,
             failure_mode = "reconnect",
             connect_timeout = 100,
+            fork_idle_timeout = 100,
+            drain_poll_interval = 0.05,
         })
         mgr:connect()
 
@@ -217,6 +223,8 @@ connect() failed
                 callback_set = true
                 return true
             end,
+            fork_idle_timeout = 100,
+            drain_poll_interval = 0.05,
         })
         mgr:connect()
         ngx.say("state: " .. mgr:get_state())
@@ -263,6 +271,8 @@ requires on_reconnect: true
             failure_mode = "reconnect",
             reconnect_max_retries = 3,
             reconnect_backoff_initial = 0.05,
+            fork_idle_timeout = 100,
+            drain_poll_interval = 0.05,
         })
         mgr:connect()
         ngx.say("initial: " .. mgr:get_state())

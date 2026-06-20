@@ -17,7 +17,7 @@ __DATA__
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -44,7 +44,7 @@ f2: v2
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -70,7 +70,7 @@ b: 2
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -98,7 +98,7 @@ y: 20
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -126,7 +126,7 @@ prefix consumed: true
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port, capacity = 0})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, capacity = 0, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         -- Should not error; capacity should be clamped to 1
         local ok, err = mgr:connect()
         if ok then
@@ -153,7 +153,7 @@ works: true
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -178,7 +178,7 @@ has_err: true
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -206,7 +206,7 @@ ttl > 0: true
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         local cycles = 3
         local all_ok = true
 
@@ -241,7 +241,7 @@ cycles ok: true
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -271,7 +271,7 @@ vals[3]: a
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -301,7 +301,7 @@ has c: true
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 
@@ -333,7 +333,7 @@ v3: c
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port, db = 0})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, db = 0, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         local ok, err = mgr:connect()
         if ok then
             local c = mgr:get_client()
@@ -361,7 +361,7 @@ db0 get: in_db0
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         ngx.say("shutting_down (connected): " .. tostring(mgr:is_shutting_down()))
         mgr:shutdown()
@@ -379,7 +379,7 @@ shutting_down (connected): false
         local redis_port = tonumber(os.getenv("TEST_NGINX_REDIS_PORT")) or 6379
         local redis_host = os.getenv("TEST_NGINX_REDIS_HOST") or "127.0.0.1"
 
-        local mgr = redis_mux.new({host = redis_host, port = redis_port})
+        local mgr = redis_mux.new({host = redis_host, port = redis_port, fork_idle_timeout = 100, drain_poll_interval = 0.05})
         mgr:connect()
         local client = mgr:get_client()
 

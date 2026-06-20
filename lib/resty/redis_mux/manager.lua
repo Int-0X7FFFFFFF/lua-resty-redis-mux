@@ -129,6 +129,7 @@ local function create_shared_state(opts)
         -- Drain
         draining = false,
         drain_timeout = opts.drain_timeout or 5,
+        drain_poll_interval = opts.drain_poll_interval or 1.0,
     }
 
     return shared
@@ -270,8 +271,8 @@ local function writeloop(shared)
             goto continue
         end
 
-        -- === Wait for work (1s timeout = exit detection pulse) ===
-        local ok, wait_err = shared.work_available:wait(1.0)
+        -- === Wait for work (timeout = exit detection pulse) ===
+        local ok, wait_err = shared.work_available:wait(shared.drain_poll_interval)
         if not ok then
             -- timeout → loop back to check worker_exiting()
             -- other errors → retry
@@ -354,7 +355,7 @@ local function readloop(shared)
                         break
                     end
                     -- writeloop still draining, wait for signal
-                    shared.driver_stop_sem:wait(1.0)
+                    shared.driver_stop_sem:wait(shared.drain_poll_interval)
                     goto continue
                 end
                 -- Buffer wrapped: there are pending responses, fall through to read
@@ -378,7 +379,7 @@ local function readloop(shared)
                 -- Truly empty
                 if shared.draining then
                     -- writeloop done; wait for final notification
-                    shared.driver_stop_sem:wait(1.0)
+                    shared.driver_stop_sem:wait(shared.drain_poll_interval)
                     goto continue
                 end
                 -- No data yet; avoid busy-wait
